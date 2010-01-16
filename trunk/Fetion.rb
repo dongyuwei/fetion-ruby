@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+# Using GPL v2
 # Author:: DongYuwei(mailto:newdongyuwei@gmail.com)
 require 'uri'
 require 'net/http'
