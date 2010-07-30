@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 # Using GPL v2
 # Author:: DongYuwei(mailto:newdongyuwei@gmail.com)
+# 更新部分内容应对2010年7月25日飞信升级 
+
 require 'uri'
 require 'net/http'
 require 'net/https'
@@ -15,7 +17,7 @@ class Fetion
 		@phone_num = phone_num;
 		@password = password;
 		@domain = "fetion.com.cn";
-		@login_xml = '<args><device type="PC" version="0" client-version="3.2.0540" /><caps value="simple-im;im-session;temp-group;personal-group" /><events value="contact;permission;system-message;personal-group" /><user-info attributes="all" /><presence><basic value="400" desc="" /></presence></args>';
+		@login_xml = '<args><device type="PC" version="0" client-version="3.5.2540" /><caps value="simple-im;im-session;temp-group;personal-group" /><events value="contact;permission;system-message;personal-group" /><user-info attributes="all" /><presence><basic value="400" desc="" /></presence></args>';
 		self.init
 	end
 	
@@ -28,14 +30,11 @@ class Fetion
 		@SIPC = SIPC.new(sipc_proxy);
 		
 		sipc_url = ""
-		doc.elements.each("//ssi-app-sign-in") do |element|
+		#ssi-app-sign-in
+		doc.elements.each("//ssi-app-sign-in-v2") do |element|
 			sipc_url = element.text
 		end
 		@fetion_num = self.get_fetion_num(self.SSIAppSignIn(sipc_url))
-		
-		doc.elements.each("//http-tunnel") do |element|
-			@http_tunnel = element.text
-		end
 	end
 	
 	def login()
@@ -70,7 +69,6 @@ class Fetion
 	
 	def get_response()
 		@cnonce = Digest::MD5.hexdigest(rand.to_s)
-		puts "conce: #{@cnonce} , fetion_num: #{@fetion_num} , domain : #{@domain} ,password:#{@password}"
 		key = Digest::MD5.digest(@fetion_num + ":" + @domain + ":" + @password)
 		h1 = Digest::MD5.hexdigest(key + ":" + @nonce + ":" + @cnonce).upcase
 		h2 = Digest::MD5.hexdigest("REGISTER:" + @fetion_num).upcase
@@ -80,7 +78,7 @@ class Fetion
 	def get_system_config()
 		uri = URI.parse("http://nav.fetion.com.cn/nav/getsystemconfig.aspx")
 		http = Net::HTTP.new(uri.host, uri.port)
-		params = sprintf('<config><user mobile-no="%s" /><client type="PC" version="3.2.0540" platform="W5.1" /><servers version="0" /><service-no version="0" /><parameters version="0" /><hints version="0" /><http-applications version="0" /><client-config version="0" /></config>',@phone_num)
+		params = sprintf('<config><user mobile-no="%s" /><client type="PC" version="3.5.2540" platform="W5.1" /><servers version="0" /><service-no version="0" /><parameters version="0" /><hints version="0" /><http-applications version="0" /><client-config version="0" /></config>',@phone_num)
 		headers = {
 		  'Content-Type' => 'application/x-www-form-urlencoded'
 		}
@@ -96,12 +94,17 @@ class Fetion
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE # turn off SSL warning
 		resp, xml = http.get(path, nil)
 		
-		@cookie = resp.response['set-cookie'].split(';')[0]
-		puts "cookie---------- #{@cookie}"
-		@ssic = @cookie.split("=")[1]
+		ok = "200"
+		doc = REXML::Document.new(xml)
+		doc.elements.each("//results") do|element|
+           ok = element.attribute("status-code").value
+       end
+       if ok != "200"#421 verification picture?
+            return self.SSIAppSignIn(url)
+       end
 		return xml
 	end
-
+    
 	def get_fetion_num(xml)
 		@uri = ""
 		doc = REXML::Document.new(xml)
@@ -141,6 +144,6 @@ end
 if __FILE__ == $0
     fetion = Fetion.new("13651368727","password")
     fetion.login()
-    fetion.send_sms("13651368727","any sms")
-    fetion.send_sms_to_self("testruby-fetion")
+    fetion.send_sms_to_self("test-ruby-fetion")
+    #fetion.send_sms("mobileID","any sms")
 end
