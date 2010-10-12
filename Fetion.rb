@@ -93,16 +93,16 @@ class Fetion
 		http.use_ssl = true
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE # turn off SSL warning
 		resp, xml = http.get(path, nil)
-		
+		puts resp,xml		
 		ok = "200"
 		doc = REXML::Document.new(xml)
 		doc.elements.each("//results") do|element|
-           ok = element.attribute("status-code").value
-       end
-       if ok != "200"#421 verification picture?
-            return self.SSIAppSignIn(url)
-       end
-		return xml
+		   ok = element.attribute("status-code").value
+	        end
+	       if ok != "200"#421 verification picture?
+		    return self.SSIAppSignIn(url)
+	       end
+	       return xml
 	end
     
 	def get_fetion_num(xml)
@@ -142,7 +142,7 @@ end
 
 #for test
 if __FILE__ == $0
-    fetion = Fetion.new("13651368727","password")
+    fetion = Fetion.new("13651368727","dywmjj6271218")
     fetion.login()
     fetion.send_sms_to_self("test-ruby-fetion")
     #fetion.send_sms("mobileID","any sms")
