@@ -83,6 +83,7 @@ class Fetion
 		  'Content-Type' => 'application/x-www-form-urlencoded'
 		}
 		resp = http.post(uri.path, params, headers)
+		puts resp,resp.body
 		return resp.body
 	end
 	
@@ -99,10 +100,14 @@ class Fetion
 		doc.elements.each("//results") do|element|
 		   ok = element.attribute("status-code").value
 	        end
-	       if ok != "200"#421 verification picture?
-		    return self.SSIAppSignIn(url)
-	       end
-	       return xml
+	        if not @_count
+			@_count = 0
+		end
+		if ok != "200" and @_count<3#421 verification picture?
+		    	@_count = @_count+1
+			return self.SSIAppSignIn(url)
+	        end
+	        return xml
 	end
     
 	def get_fetion_num(xml)
@@ -142,7 +147,7 @@ end
 
 #for test
 if __FILE__ == $0
-    fetion = Fetion.new("13651368727","dywmjj6271218")
+    fetion = Fetion.new("13651368727","my password")
     fetion.login()
     fetion.send_sms_to_self("test-ruby-fetion")
     #fetion.send_sms("mobileID","any sms")
