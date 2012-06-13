@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 # Using GPL v2
 # Author:: DongYuwei(mailto:newdongyuwei@gmail.com)
-# 2012-06-13 更新,又可以工作啦(同一ip需要预先登陆过一次,不然会有验证码---待解决)
+# 2012-06-13 更新,又可以工作了
 
 require 'uri'
 require 'net/http'
