@@ -52,7 +52,7 @@ class Fetion
    end
 
    def generate_response
-      p1 = Digest::SHA1.hexdigest("#{@domain}:"+ @password)
+      p1 = Digest::SHA1.hexdigest("#{@domain}:#{@password}")
       p2 = Digest::SHA1.hexdigest([@user_id.to_i].pack('i') + [p1].pack("H*"))
       str = @nonce + [p2].pack("H*") + [random_string(64)].pack("H*")
 
@@ -104,7 +104,7 @@ class Fetion
 
    def SSIAppSignIn(url)
       uri = URI.parse(url)
-      path = uri.path + "?mobileno=" + @phone_num + "&domains=#{@domain}%3bm161.com.cn%3bwww.ikuwa.cn"+"&v4digest-type=1&v4digest=" + Digest::SHA1.hexdigest("fetion.com.cn:"+ @password)
+      path = "#{uri.path}?mobileno=#{@phone_num}&domains=#{@domain}%3bm161.com.cn%3bwww.ikuwa.cn&v4digest-type=1&v4digest=" + Digest::SHA1.hexdigest("fetion.com.cn:#{@password}")
       http = Net::HTTP.new(uri.host,uri.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE # turn off SSL warning
