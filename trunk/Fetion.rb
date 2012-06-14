@@ -39,7 +39,7 @@ class Fetion
    end
 
    def login()
-      req1 = sprintf("R fetion.com.cn SIP-C/4.0\r\nF: %s\r\nI: 1\r\nQ: 1 R\r\nCN: 491c23644b7769ede1af078cb14901e2\r\nCL: type=\"pc\",version=\"4.1.1160\"\r\n\r\n",@fetion_num)
+      req1 = sprintf("R #{@domain} SIP-C/4.0\r\nF: %s\r\nI: 1\r\nQ: 1 R\r\nCN: 491c23644b7769ede1af078cb14901e2\r\nCL: type=\"pc\",version=\"4.1.1160\"\r\n\r\n",@fetion_num)
       res1 = @SIPC.request(req1)
 
       @nonce = res1.scan(/nonce="(.*)",/)[0][0].split(',')[0][0..-2]
@@ -47,12 +47,12 @@ class Fetion
 
       @response = generate_response
       @login_xml = sprintf(@login_xml,@phone_num,@user_id , '400')#@user_status
-      req2 = sprintf("R fetion.com.cn SIP-C/4.0\r\nF: %s\r\nI: 1\r\nQ: 1 R\r\nA: Digest algorithm=\"SHA1-sess-v4\",response=\"%s\"\r\nL: %s\r\n\r\n",@fetion_num,@response,@login_xml.length)
+      req2 = sprintf("R #{@domain} SIP-C/4.0\r\nF: %s\r\nI: 1\r\nQ: 1 R\r\nA: Digest algorithm=\"SHA1-sess-v4\",response=\"%s\"\r\nL: %s\r\n\r\n",@fetion_num,@response,@login_xml.length)
       res2 = @SIPC.request(req2 + @login_xml)
    end
 
    def generate_response
-      p1 = Digest::SHA1.hexdigest("fetion.com.cn:"+ @password)
+      p1 = Digest::SHA1.hexdigest("#{@domain}:"+ @password)
       p2 = Digest::SHA1.hexdigest([@user_id.to_i].pack('i') + [p1].pack("H*"))
       str = @nonce + [p2].pack("H*") + [random_string(64)].pack("H*")
 
@@ -85,7 +85,7 @@ class Fetion
       @SIPC.request(request)
    end
 
-   def logout()
+   def logout
       logout_request = sprintf("R %s SIP-C/4.0\r\nF: %s\r\nI: 1 \r\nQ: 3 R\r\nX: 0\r\n\r\n", @domain, @fetion_num)
       @SIPC.request(logout_request)
    end
@@ -104,7 +104,7 @@ class Fetion
 
    def SSIAppSignIn(url)
       uri = URI.parse(url)
-      path = uri.path + "?mobileno=" + @phone_num + "&domains=fetion.com.cn%3bm161.com.cn%3bwww.ikuwa.cn"+"&v4digest-type=1&v4digest=" + Digest::SHA1.hexdigest("fetion.com.cn:"+ @password)
+      path = uri.path + "?mobileno=" + @phone_num + "&domains=#{@domain}%3bm161.com.cn%3bwww.ikuwa.cn"+"&v4digest-type=1&v4digest=" + Digest::SHA1.hexdigest("fetion.com.cn:"+ @password)
       http = Net::HTTP.new(uri.host,uri.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE # turn off SSL warning
@@ -141,7 +141,7 @@ class SIPC
             res = res + chunk
          end
       rescue
-         puts "Error: #{$!}"
+         #puts "Error: #{$!}"
       end
       puts "res: #{res}"
       return res
