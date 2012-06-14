@@ -39,7 +39,7 @@ class Fetion
    end
 
    def login()
-      req1 = sprintf("R #{@domain} SIP-C/4.0\r\nF: %s\r\nI: 1\r\nQ: 1 R\r\nCN: 491c23644b7769ede1af078cb14901e2\r\nCL: type=\"pc\",version=\"4.1.1160\"\r\n\r\n",@fetion_num)
+      req1 = sprintf("R #{@domain} SIP-C/4.0\r\nF: %s\r\nI: 1\r\nQ: 1 R\r\nCN: #{random_string(32)}\r\nCL: type=\"pc\",version=\"4.1.1160\"\r\n\r\n",@fetion_num)
       res1 = @SIPC.request(req1)
 
       @nonce = res1.scan(/nonce="(.*)",/)[0][0].split(',')[0][0..-2]
@@ -98,7 +98,7 @@ class Fetion
          'Content-Type' => 'application/x-www-form-urlencoded'
       }
       resp = http.post(uri.path, params, headers)
-      open('log.txt','w').puts(resp.body)
+      puts "system_config: #{resp.body}"
       return resp.body
    end
 
