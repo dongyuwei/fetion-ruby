@@ -99,7 +99,7 @@ class Fetion
       }
       resp = http.post(uri.path, params, headers)
       puts "system_config: #{resp.body}"
-      return resp.body
+      resp.body
    end
 
    def SSIAppSignIn(url)
@@ -110,7 +110,7 @@ class Fetion
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE # turn off SSL warning
       resp, xml = http.get(path, nil)
       puts "SSIAppSignIn: #{xml}"
-      return xml
+      xml
    end
 
    def get_fetion_num(xml)
@@ -120,7 +120,7 @@ class Fetion
          @user_id = element.attribute("user-id").value
          @user_status = element.attribute("user-status").value
       end
-      return @uri.scan(/sip:([0-9]+)@/)[0][0]
+      @uri.scan(/sip:([0-9]+)@/)[0][0]
    end
 end
 
@@ -144,7 +144,7 @@ class SIPC
          #puts "Error: #{$!}"
       end
       puts "res: #{res}"
-      return res
+      res
    end
 end
 
