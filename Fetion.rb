@@ -122,6 +122,15 @@ class Fetion
       end
       @uri.scan(/sip:([0-9]+)@/)[0][0]
    end
+
+   def keep_alive
+      loop {
+         cmd = sprintf("R fetion.com.cn SIP-C/4.0\r\nF: %s\r\nI: 1 \r\nQ: 1 R\r\nN: KeepAlive\r\n\r\n", @fetion_num)
+         @SIPC.request(cmd)
+         sleep 5
+      }
+   end
+
 end
 
 class SIPC
@@ -132,7 +141,7 @@ class SIPC
 
    # send SIP request
    def request(sip_request)
-      puts "req: #{sip_request}"
+      puts "req:\n#{sip_request}"
       @socket.write_nonblock(sip_request)
       IO.select [@socket]
       res = ""
@@ -143,7 +152,7 @@ class SIPC
       rescue
          #puts "Error: #{$!}"
       end
-      puts "res: #{res}"
+      puts "res:\n#{res}"
       res
    end
 end
@@ -154,5 +163,6 @@ if __FILE__ == $0
    fetion.login
    fetion.send_sms_to_self "test-ruby-fetion-中文"
    #fetion.send_sms "13651368727","any sms"
+   #fetion.keep_alive
    fetion.logout
 end
