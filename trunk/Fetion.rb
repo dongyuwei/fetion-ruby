@@ -123,10 +123,13 @@ class Fetion
       @uri.scan(/sip:([0-9]+)@/)[0][0]
    end
 
-   def keep_alive
+   def keep_alive(&callback)
       loop {
          cmd = sprintf("R fetion.com.cn SIP-C/4.0\r\nF: %s\r\nI: 1 \r\nQ: 1 R\r\nN: KeepAlive\r\n\r\n", @fetion_num)
-         @SIPC.request(cmd)
+         res = @SIPC.request(cmd)
+         if block_given?
+            yield res
+         end
          sleep 5
       }
    end
@@ -159,10 +162,15 @@ end
 
 #for test
 if __FILE__ == $0
-   fetion = Fetion.new "13651368727","you_know_my_password?"
+   fetion = Fetion.new "13651368727","xxoo"
    fetion.login
-   fetion.send_sms_to_self "test-ruby-fetion-中文"
+   #fetion.send_sms_to_self "test-ruby-fetion-中文"
    #fetion.send_sms "13651368727","any sms"
-   #fetion.keep_alive
-   fetion.logout
+   fetion.keep_alive{|res|
+      data = res.split(/\r\n\r\n/)
+      if data[data.size - 2] && data[data.size - 2][0] == 'M'[0]
+         puts "\n*********** Msg received :************\n#{data[data.size - 1]}"
+      end
+   }
+   #fetion.logout
 end
