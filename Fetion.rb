@@ -162,7 +162,7 @@ end
 
 #for test
 if __FILE__ == $0
-   fetion = Fetion.new "13651368727","xxoo"
+   fetion = Fetion.new "phone_num","xxoo"
    fetion.login
    #fetion.send_sms_to_self "test-ruby-fetion-中文"
    #fetion.send_sms "13651368727","any sms"
