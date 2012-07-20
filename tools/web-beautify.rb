@@ -1,18 +1,25 @@
 require 'rubygems'
 require 'sinatra'
-$LOAD_PATH.unshift(File.dirname(__FILE__)) 
-require 'beautify'
+require 'ruby2ruby'
+require 'ruby_parser'
 
-HTML = "beautify ruby source code:
+HTML = "
 	<form action='/beautify' method='post'>
-		<textarea name='code' style='width:80%;height:50%;'></textarea>
-		<input type='submit' value='beautify'/>
+		<textarea name='code' style='width:80%;height:50%;'>_Source_Code_</textarea>
+		<input type='submit' value='beautify ruby source code'/>
 	</form>"
 
 get '/' do 
-	HTML
+	HTML.sub(/_Source_Code_/,'')
 end
 
 post '/beautify' do 
-	"<textarea style='border:solid 1px red;width:80%;height:50%;'>#{RBeautify.beautify_string(params['code'])[0]}</textarea> #{HTML}"
+	begin
+		parser    = RubyParser.new
+		ruby2ruby = Ruby2Ruby.new
+		sexp      = parser.process(params['code'])
+		"beautified successfully! #{HTML.sub(/_Source_Code_/,ruby2ruby.process(sexp))}"
+	rescue Exception => e
+		"parse failed ! #{HTML.sub(/_Source_Code_/,'')}"
+	end
 end
