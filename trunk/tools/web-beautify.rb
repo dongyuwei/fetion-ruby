@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'sinatra'
+$LOAD_PATH.unshift(File.dirname(__FILE__)) 
 require 'beautify'
 
 HTML = "beautify ruby source code:
@@ -13,5 +14,5 @@ get '/' do
 end
 
 post '/beautify' do 
-	"<pre style='border:solid 1px red;'>#{RBeautify.beautify_string(params['code'])[0]}</pre> #{HTML}"
+	"<textarea style='border:solid 1px red;width:80%;height:50%;'>#{RBeautify.beautify_string(params['code'])[0]}</textarea> #{HTML}"
 end
